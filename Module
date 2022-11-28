@@ -1,0 +1,137 @@
+local l__Workspace__1 = game:GetService("Workspace")
+local l__Lighting__2 = game:GetService("Lighting")
+local l__ReplicatedFirst__3 = game:GetService("ReplicatedFirst")
+local l__ReplicatedStorage__4 = game:GetService("ReplicatedStorage")
+local l__UserInputService__5 = game:GetService("UserInputService")
+local l__RunService__6 = game:GetService("RunService")
+local v7 = {
+	Create = function(p1, p2, p3)
+		local v8 = Instance.new(p1)
+		v8.Name = p2
+		v8.Parent = p3
+		return v8
+	end
+}
+local l__LocalPlayer__1 = game:GetService("Players").LocalPlayer
+function v7.checkIfHit()
+	local v9 = l__LocalPlayer__1.Character or l__LocalPlayer__1.CharacterAdded:Wait()
+	if not v9:FindFirstChild("Hit") and not v9:FindFirstChild("Debounce") then
+		return false
+	end
+	return true
+end
+function v7.getLockedOnPlayer(p4)
+	if not p4:FindFirstChild("LockOnScript") or not p4:FindFirstChild("LockOnScript").LockOn.Value then
+		return false
+	end
+	return p4:FindFirstChild("LockOnScript").LockOn.Value
+end
+function v7.qwait()
+	game:GetService("RunService").RenderStepped:Wait()
+end
+function v7.Lerp(p5, p6, p7)
+	return p5 + (p6 - p5) * p7
+end
+function v7.BurstScreen(p8, p9, p10, p11, p12)
+	local u2 = p11
+	task.spawn(function()
+		local v10 = p8.Character.Resources.Guis.BurstScreen:Clone()
+		v10[p9].BackgroundTransparency = 0
+		if p10 then
+			v10[p9].BackgroundColor3 = p10
+		end
+		v10.Parent = p8.PlayerGui
+		if p12 then
+			wait(p12)
+		end
+		if not u2 then
+			u2 = 10
+		end
+		for v11 = 1, u2 do
+			v10[p9].BackgroundTransparency = v10[p9].BackgroundTransparency + 1 / u2
+			wait()
+		end
+		v10:Destroy()
+	end)
+end
+function v7.Weld(p1, p2)
+    local w = Instance.new("Weld")
+    w.Parent = p1
+    w.Part0 = p1
+    w.Part1 = p2
+end
+function v7.BlurEffect(p13, p14)
+	task.spawn(function()
+		local v12 = game:GetService("Lighting"):FindFirstChild("Blur") or Instance.new("BlurEffect", game:GetService("Lighting"))
+		v12.Size = p13
+		for v13 = 1, p14 do
+			v12.Size = v12.Size - p13 / p14
+			tak.wait(0.03)
+		end
+	end)
+end
+function v7.CreateSound(p1, p2)
+    local p3 = p1:Clone()
+    p3.Parent = p2
+    p3.Playing = true
+end
+function v7.CreateTween(p15, p16, p17, p18)
+	local v14 = game:GetService("TweenService"):Create(p15, TweenInfo.new(unpack(p16)), p17)
+	if p18 then
+		v14:Play()
+	end
+	return v14
+end
+function v7.GetPlayerParts(p19)
+	local v15 = {}
+	for v16, v17 in pairs(p19:GetDescendants()) do
+		if v17:IsA("BasePart") then
+			table.insert(v15, v17)
+		end
+	end
+	return v15
+end
+function v7.DisableEffects(p20, p21)
+	for v18, v19 in pairs(p20:GetChildren()) do
+		if v19.Name == p21 then
+			v19.Enabled = false
+		end
+	end
+end
+function v7.CheckTable(p22, p23)
+	for v20, v21 in pairs(p22) do
+		if v21 == p23 then
+			return true
+		end
+	end
+	return false
+end
+function v7.GetParts(p16)
+	local v22 = {};
+	local v23 = p16:GetDescendants();
+	table.insert(v23, p16);
+	for v24, v25 in pairs(v23) do
+		if v25:IsA("BasePart") then
+			v22[v25] = {
+				Part = v25, 
+				Transparency = v25.Transparency, 
+				Size = v25.Size
+			};
+			v25.Size = Vector3.new(0, 0, 0);
+			v25.Transparency = 1;
+		end;
+	end;
+	return v22;
+end;
+function v7.getNearByHumanoids(p24)
+	local v22 = l__LocalPlayer__1.Character or l__LocalPlayer__1.CharacterAdded:Wait()
+	local l__HumanoidRootPart__23 = v22.HumanoidRootPart
+	local v24 = nil
+	for i,v in pairs(workspace:GetChildren()) do
+		local v30 = v:FindFirstChild("HumanoidRootPart") or v:FindFirstChild("Torso")
+		if v30 and v ~= v22 and (l__HumanoidRootPart__23.Position + l__HumanoidRootPart__23.CFrame.lookVector * p24 - v30.Position).magnitude <= p24 then
+			v24 = v
+		end
+	end
+	return v24
+end
