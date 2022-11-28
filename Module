@@ -135,5 +135,3 @@ function v7.getNearByHumanoids(p24)
 	end
 	return v24
 end
-
-return v7
