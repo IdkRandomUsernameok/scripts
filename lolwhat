@@ -1,12 +1,13 @@
 function slay()
     repeat wait() until game:IsLoaded()
+    wait(1)
     for i,v in pairs(game:GetService("Players"):GetChildren()) do
         local args = {
             [1] = v.Name
         }
         game:GetService("ReplicatedStorage").SlayPlayer:FireServer(unpack(args))
     end
-    task.wait(1)
+    wait(2)
     game:GetService("TeleportService"):Teleport(game.PlaceId, game.Players.LocalPlayer)
 end
 
