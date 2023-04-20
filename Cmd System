@@ -1,0 +1,110 @@
+
+local HideExecution = true -- doesn't send the chat msg when you execute a cmd
+
+local pre = {
+    "/",
+    "."
+}
+
+local cmds = {
+    "nocd",
+    "setclass",
+    "recd",
+    "reanims",
+    "ignoreequip",
+}
+
+local wlclass = {}
+
+local blacklist = {}
+
+for i,v in pairs(game:GetService("ReplicatedStorage").ClassData:GetChildren()) do
+    if v:FindFirstChild("Ignore") then
+        table.insert(blacklist,v.Name)
+        --print(v.Name.." ".."<--".." ".."Blacklisted")
+    else
+        table.insert(wlclass,v.Name:lower())
+        --print(v.Name.." ".."<--".." ".."Whitelisted")
+    end
+end
+
+local remotes = game:GetService("ReplicatedStorage"):WaitForChild("Remotes"):WaitForChild("Game")
+
+search=function(v,v2)
+    for _,chr in pairs(v) do
+        if v2:find(chr) then
+            return chr
+        end
+    end
+    return false
+end
+
+
+
+--[[removeanim=function() -- it dont wanna work for some reason lol
+    if game.Players.LocalPlayer.Character then else return end
+    local Hum = game.Players.LocalPlayer.Character:FindFirstChildOfClass("Humanoid") or game.Players.LocalPlayer.Character:FindFirstChildOfClass("AnimationController")
+    for i,v in next, Hum:GetPlayingAnimationTracks() do
+	    v:Stop()
+    end
+end]]
+
+upperword=function(v)
+    local beforeString = v
+    local foundString = beforeString:match("^%w")
+    local afterString = beforeString:gsub(("^%s"):format(foundString), foundString:upper())
+    return afterString
+end
+
+
+msg=function(v,v2)
+    game.StarterGui:SetCore("ChatMakeSystemMessage", { Text = v, Color = v2,Font = Enum.Font.Arial,FontSize = 10})
+end
+
+
+setclass=function(v)
+    task.spawn(function()
+        remotes.ChangeClass:InvokeServer(upperword(v))
+    end)
+    task.spawn(function()
+        remotes.Deploy:InvokeServer("CurrentMap")
+    end)
+    task.spawn(function()
+        --removeanim()
+        game.Players.LocalPlayer.Character.CharStats.StopAnimations.Value = true
+        task.wait(.5)
+        game.Players.LocalPlayer.Character.CharStats.StopAnimations.Value = false
+    end)
+end
+
+
+
+
+local old
+old = hookmetamethod(game, "__namecall", function(self, ...)
+    local args = {...}
+    if self.Name == "SayMessageRequest" then
+        if args[2] == "All" then
+            local text = args[1]:lower()
+            if search(pre,text) then
+                --local cmd = search(cmds,text)
+                if search(cmds,text) then
+                    local chr = search(wlclass,text)
+                    if chr then
+                        setclass(chr)
+                        msg("[Server]: Command Executed.",Color3.new(0,1,0))
+                        msg("[Server]: Class Changed To".." "..upperword(chr),Color3.fromRGB(255,255,0))
+                        if HideExecution then
+                            return
+                        end
+                    else
+                        msg("[Server]: Invalid Character.",Color3.new(1,0,0))
+                        return
+                    end
+                    --return
+                end
+            end
+        end
+    end
+    return old(self, ...)
+end)
